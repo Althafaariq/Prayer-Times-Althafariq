@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Althafariq | Prayer Times</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --accent-color: #00d4ff;
+        --accent-glow: rgba(0, 212, 255, 0.5);
+        --glass-bg: rgba(0, 0, 0, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.1);
+      }
+
+      body {
+        margin: 0;
+        color: white;
+        font-family: "Poppins", sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        position: relative;
+        background-image: url("image/background.jpeg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: -1;
+      }
+
+      .header {
+        padding: 25px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .city-selector-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #city-icon {
+        font-size: 1.5rem;
+        background: var(--glass-bg);
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(5px);
+      }
+
+      select {
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 12px;
+        cursor: pointer;
+        outline: none;
+        backdrop-filter: blur(10px);
+        font-family: "Poppins";
+        font-size: 1rem;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+
+      select:hover {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 15px var(--accent-glow);
+      }
+      select optgroup {
+        background: #111;
+        color: #d1b876;
+        font-weight: bold;
+      }
+      select option {
+        background: #222;
+        color: white;
+      }
+
+      .weather-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--glass-bg);
+        padding: 10px 25px;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        font-weight: 600;
+      }
+
+      .main-timer-area {
+        text-align: center;
+      }
+      #clock {
+        font-family: "Orbitron", sans-serif;
+        font-size: 8rem;
+        font-weight: 700;
+        line-height: 1;
+        text-shadow:
+          0 0 20px rgba(255, 255, 255, 0.4),
+          0 0 50px var(--accent-glow);
+      }
+
+      .timezone-tag {
+        font-size: 1.5rem;
+        color: var(--accent-color);
+        font-weight: bold;
+        margin-left: 10px;
+      }
+
+      .next-prayer-box {
+        display: inline-block;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 12px 35px;
+        border-radius: 50px;
+        margin-top: 20px;
+        border: 1px solid var(--accent-color);
+        font-size: 1.3rem;
+        backdrop-filter: blur(10px);
+      }
+
+      #countdown-text {
+        font-weight: 700;
+        color: var(--accent-color);
+      }
+
+      .prayer-row {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        padding: 0 20px 50px 20px;
+      }
+      .prayer-card {
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 20px;
+        text-align: center;
+        min-width: 130px;
+        border: 1px solid var(--glass-border);
+        transition: 0.4s;
+      }
+
+      .prayer-card.active {
+        background: rgba(0, 212, 255, 0.2);
+        transform: translateY(-20px);
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.4);
+      }
+
+      .p-name {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        opacity: 0.7;
+      }
+      .p-time {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <link rel="icon" href="image/logo.png" />
+  <body>
+    <div class="header">
+      <div class="city-selector-wrapper">
+        <span id="city-icon">🏢</span>
+        <select id="citySelect" onchange="updateCityData()">
+          <optgroup label="JAWA (WIB - GMT+7)">
+            <option value="Jakarta" data-icon="🏢" data-tz="7" selected>
+              Jakarta
+            </option>
+            <option value="Bogor" data-icon="⛰️" data-tz="7">Bogor</option>
+            <option value="Bekasi" data-icon="🏘️" data-tz="7">Bekasi</option>
+            <option value="Indramayu" data-icon="🌾" data-tz="7">
+              Indramayu
+            </option>
+            <option value="Depok" data-icon="🏢" data-tz="7">Depok</option>
+            <option value="Tangerang" data-icon="✈️" data-tz="7">
+              Tangerang
+            </option>
+            <option value="Bandung" data-icon="☕" data-tz="7">Bandung</option>
+            <option value="Semarang" data-icon="🚂" data-tz="7">
+              Semarang
+            </option>
+            <option value="Yogyakarta" data-icon="🕌" data-tz="7">
+              Yogyakarta
+            </option>
+            <option value="Surakarta" data-icon="🎭" data-tz="7">
+              Surakarta
+            </option>
+            <option value="Surabaya" data-icon="🦈" data-tz="7">
+              Surabaya
+            </option>
+            <option value="Malang" data-icon="🍎" data-tz="7">Malang</option>
+          </optgroup>
+          <optgroup label="SUMATERA (WIB - GMT+7)">
+            <option value="Banda Aceh" data-icon="🕌" data-tz="7">
+              Banda Aceh
+            </option>
+            <option value="Medan" data-icon="🌳" data-tz="7">Medan</option>
+            <option value="Pekanbaru" data-icon="🛢️" data-tz="7">
+              Pekanbaru
+            </option>
+            <option value="Padang" data-icon="🏠" data-tz="7">Padang</option>
+            <option value="Jambi" data-icon="🎋" data-tz="7">Jambi</option>
+            <option value="Palembang" data-icon="🌉" data-tz="7">
+              Palembang
+            </option>
+            <option value="Bengkulu" data-icon="🌺" data-tz="7">
+              Bengkulu
+            </option>
+            <option value="Bandar Lampung" data-icon="🐘" data-tz="7">
+              Bandar Lampung
+            </option>
+            <option value="Pangkal Pinang" data-icon="⚓" data-tz="7">
+              Pangkal Pinang
+            </option>
+          </optgroup>
+          <optgroup label="KALIMANTAN (WIB/WITA)">
+            <option value="Pontianak" data-icon="☀️" data-tz="7">
+              Pontianak (WIB)
+            </option>
+            <option value="Palangkaraya" data-icon="🌳" data-tz="7">
+              Palangkaraya (WIB)
+            </option>
+            <option value="Banjarmasin" data-icon="🚣" data-tz="8">
+              Banjarmasin (WITA)
+            </option>
+            <option value="Samarinda" data-icon="🚢" data-tz="8">
+              Samarinda (WITA)
+            </option>
+            <option value="Balikpapan" data-icon="🛢️" data-tz="8">
+              Balikpapan (WITA)
+            </option>
+            <option value="Tarakan" data-icon="🦀" data-tz="8">
+              Tarakan (WITA)
+            </option>
+          </optgroup>
+          <optgroup label="SULAWESI (WITA - GMT+8)">
+            <option value="Makassar" data-icon="⚓" data-tz="8">
+              Makassar
+            </option>
+            <option value="Manado" data-icon="🌋" data-tz="8">Manado</option>
+            <option value="Palu" data-icon="🐚" data-tz="8">Palu</option>
+            <option value="Kendari" data-icon="🌅" data-tz="8">Kendari</option>
+            <option value="Gorontalo" data-icon="🏰" data-tz="8">
+              Gorontalo
+            </option>
+          </optgroup>
+          <optgroup label="BALI & NUSA TENGGARA (WITA - GMT+8)">
+            <option value="Denpasar" data-icon="🏝️" data-tz="8">
+              Denpasar
+            </option>
+            <option value="Mataram" data-icon="🏖️" data-tz="8">Mataram</option>
+            <option value="Kupang" data-icon="☀️" data-tz="8">Kupang</option>
+          </optgroup>
+          <optgroup label="MALUKU & PAPUA (WIT - GMT+9)">
+            <option value="Ambon" data-icon="⛵" data-tz="9">Ambon</option>
+            <option value="Ternate" data-icon="🌋" data-tz="9">Ternate</option>
+            <option value="Jayapura" data-icon="🌅" data-tz="9">
+              Jayapura
+            </option>
+            <option value="Manokwari" data-icon="🦜" data-tz="9">
+              Manokwari
+            </option>
+            <option value="Sorong" data-icon="🌊" data-tz="9">Sorong</option>
+            <option value="Merauke" data-icon="🏹" data-tz="9">Merauke</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="weather-box">
+        <span>🌡️</span>
+        <div id="temp">--°C</div>
+      </div>
+    </div>
+
+    <div class="main-timer-area">
+      <div id="clock-container">
+        <span id="clock">00:00:00</span
+        ><span class="timezone-tag" id="tz-label">WIB</span>
+      </div>
+      <div class="next-prayer-box">
+        Menuju <span id="next-prayer-name">...</span>:
+        <span id="countdown-text">00:00:00</span>
+      </div>
+    </div>
+
+    <div class="prayer-row">
+      <div class="prayer-card" id="card-Fajr">
+        <div class="p-name">Subuh</div>
+        <div class="p-time" id="time-Fajr">--:--</div>
+      </div>
+      <div class="prayer-card" id="card-Dhuhr">
+        <div class="p-name">Dzuhur</div>
+        <div class="p-time" id="time-Dhuhr">--:--</div>
+      </div>
+      <div class="prayer-card" id="card-Asr">
+        <div class="p-name">Ashar</div>
+        <div class="p-time" id="time-Asr">--:--</div>
+      </div>
+      <div class="prayer-card" id="card-Maghrib">
+        <div class="p-name">Maghrib</div>
+        <div class="p-time" id="time-Maghrib">--:--</div>
+      </div>
+      <div class="prayer-card" id="card-Isha">
+        <div class="p-name">Isya</div>
+        <div class="p-time" id="time-Isha">--:--</div>
+      </div>
+    </div>
+
+    <script>
+      let prayerTimes = {};
+      let currentOffset = 7;
+
+      setInterval(updateClock, 1000);
+
+      function updateClock() {
+        const d = new Date();
+        const utc = d.getTime() + d.getTimezoneOffset() * 60000;
+        const cityTime = new Date(utc + 3600000 * currentOffset);
+        const h = String(cityTime.getHours()).padStart(2, "0");
+        const m = String(cityTime.getMinutes()).padStart(2, "0");
+        const s = String(cityTime.getSeconds()).padStart(2, "0");
+        document.getElementById("clock").innerText = `${h}:${m}:${s}`;
+        if (Object.keys(prayerTimes).length > 0) calculateNext(cityTime);
+      }
+
+      async function updateCityData() {
+        const select = document.getElementById("citySelect");
+        const city = select.value;
+        const icon =
+          select.options[select.selectedIndex].getAttribute("data-icon");
+        currentOffset = parseInt(
+          select.options[select.selectedIndex].getAttribute("data-tz"),
+        );
+
+        document.getElementById("tz-label").innerText =
+          currentOffset == 7 ? "WIB" : currentOffset == 8 ? "WITA" : "WIT";
+        document.getElementById("city-icon").innerText = icon;
+
+        try {
+          const res = await fetch(
+            `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=11`,
+          );
+          const json = await res.json();
+          prayerTimes = json.data.timings;
+
+          ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"].forEach((p) => {
+            document.getElementById(`time-${p}`).innerText = prayerTimes[p];
+          });
+
+          // Update Suhu Simulasi per kota
+          document.getElementById("temp").innerText =
+            Math.floor(Math.random() * (33 - 26) + 26) + "°C";
+        } catch (e) {
+          console.error("Gagal ambil data API");
+        }
+      }
+
+      function calculateNext(cityTime) {
+        const list = [
+          { name: "Subuh", id: "Fajr" },
+          { name: "Dzuhur", id: "Dhuhr" },
+          { name: "Ashar", id: "Asr" },
+          { name: "Maghrib", id: "Maghrib" },
+          { name: "Isya", id: "Isha" },
+        ];
+        let next = null;
+        const currentMins = cityTime.getHours() * 60 + cityTime.getMinutes();
+        for (let p of list) {
+          const [h, m] = prayerTimes[p.id].split(":").map(Number);
+          if (h * 60 + m > currentMins) {
+            next = { ...p, mins: h * 60 + m };
+            break;
+          }
+        }
+        if (!next)
+          next = {
+            ...list[0],
+            mins:
+              24 * 60 +
+              (prayerTimes["Fajr"].split(":")[0] * 60 +
+                Number(prayerTimes["Fajr"].split(":")[1])),
+          };
+
+        document.getElementById("next-prayer-name").innerText = next.name;
+        const diff = next.mins - currentMins;
+        const hh = Math.floor(diff / 60);
+        const mm = (diff % 60) - (cityTime.getSeconds() > 0 ? 1 : 0);
+        const ss = (60 - cityTime.getSeconds()) % 60;
+        document.getElementById("countdown-text").innerText =
+          `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+
+        document
+          .querySelectorAll(".prayer-card")
+          .forEach((c) => c.classList.remove("active"));
+        document.getElementById(`card-${next.id}`).classList.add("active");
+      }
+
+      updateCityData();
+    </script>
+  </body>
+</html>
